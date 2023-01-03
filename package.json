@@ -1,0 +1,22 @@
+{
+  "name": "http-axios",
+  "version": "1.0.0",
+  "description": "基于axios二次封装",
+  "main": "https.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liuhp/http-axios.git"
+  },
+  "keywords": [
+    "axios",
+    "http"
+  ],
+  "author": "liuhp",
+  "dependencies": {
+    "axios": "^1.2.2",
+    "qs": "^6.11.0"
+  }
+}
