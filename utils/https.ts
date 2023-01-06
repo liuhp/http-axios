@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios"
 import qs from "qs"
+import { ElMessage } from "element-plus"
 import { debounce } from "./debounce"
 
 type OptionParams = {
@@ -25,13 +26,15 @@ const contentTypes = {
   multipart: "multipart/form-data",
 }
 
+// 错误信息吐司提示
 function toastMsg() {
   Object.keys(errorMsgObj).map((item) => {
-    // Message.error(item)
+    ElMessage.error(item)
     delete errorMsgObj[item]
   })
 }
 
+// 存放错误信息，只存放不重复的信息
 let errorMsgObj = {}
 
 const defaultOptions = {
@@ -42,6 +45,16 @@ const defaultOptions = {
   },
   timeout: 15000,
 }
+
+// 请求拦截，放在callApi外面，同一个接口只会调用一次
+// 若放在callApi里面，多个接口同时调用时同一个接口会执行多次拦截
+axios.interceptors.request.use((request: AxiosRequestConfig<any>) => {
+  // 移除起始部分 / 所有请求url走相对路径
+  const { url = "" } = request
+  request.url = url.replace(/^\//, "")
+  // 如果要携带token或者其他参数，可在这部分进行操作
+  return request
+})
 
 export const callApi = ({
   url,
@@ -95,13 +108,6 @@ export const callApi = ({
     }
   }
 
-  axios.interceptors.request.use((request: AxiosRequestConfig<any>) => {
-    // 移除起始部分 / 所有请求url走相对路径
-    const { url = "" } = request
-    request.url = url.replace(/^\//, "")
-    return request
-  })
-
   return axios({
     url: fullUrl,
     ...newOptions,
@@ -123,7 +129,7 @@ export const callApi = ({
         if (!errorMsgObj[message]) {
           errorMsgObj[message] = message
         }
-        // TODO: 防止一个页面多个接口都报错，同时多个报错信息铺满页面，不雅观
+        // 执行报错提示，一样的信息只会提示一次
         setTimeout(debounce(toastMsg, 1000, true), 1000)
         return Promise.reject(data)
       }
